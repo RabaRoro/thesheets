@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwZEOMiRQoLKStamjdyQ2ZnqYLxLT6A0a9Y5oKd2Up6fhBlBgwbFnqOVIO9-JviwIikDg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxZxZqpBXW1132BQ7pe8XUR-9BS_LyrUcEQX7nQtbCg9zbGsA8Me0imzdWjNvUieNrlFQ/exec";
 
 let productsList = [];
 let cart = JSON.parse(localStorage.getItem('ecom_cart')) || [];
@@ -36,7 +36,7 @@ function updateCartUI() {
             <div>
               <h4 class="font-bold text-sm text-white">${item.name}</h4>
               ${item.isPreorder ? '<span class="text-xs text-yellow-500 font-bold">Pre-Order</span>' : ''}
-              <p class="text-sm text-gray-400">$${item.price} x ${item.qty}</p>
+              <p class="text-sm text-gray-400">$${item.price.toFixed(2)} x ${item.qty}</p>
             </div>
             <div class="flex items-center gap-2">
               <button onclick="changeQty(${index}, -1)" class="w-7 h-7 bg-gray-700 text-white rounded flex items-center justify-center font-bold hover:bg-gray-600">-</button>
@@ -92,15 +92,11 @@ function changeQty(index, delta) {
   item.qty += delta;
   if (item.qty <= 0) cart.splice(index, 1);
   saveCart();
-  
-  // If on checkout page, refresh the order summary
-  if(document.getElementById('checkout-summary')) renderCheckoutSummary(); 
 }
 
 function removeItem(index) {
   cart.splice(index, 1);
   saveCart();
-  if(document.getElementById('checkout-summary')) renderCheckoutSummary();
 }
 
 // --- UI TOGGLES ---
@@ -116,27 +112,28 @@ function toggleCart() {
   }
 }
 
-// --- DATA FETCHING ---
+// --- DATA FETCHING WITH CORS FIX ---
 async function fetchProducts() {
   const grid = document.getElementById('product-grid');
   const singleProductContainer = document.getElementById('single-product-container');
   
   try {
-    const res = await fetch(API_URL);
+    const res = await fetch(API_URL, {
+      method: 'GET',
+      redirect: 'follow' // Fix for Apps Script redirects
+    });
+    
     const data = await res.json();
     
     if (data.success) {
       productsList = data.products || [];
       
-      // If we are on the products.html page
       if (grid) renderProductGrid(grid);
-      
-      // If we are on the product.html page (Single Product View)
       if (singleProductContainer) renderSingleProduct(singleProductContainer);
-      
     }
   } catch (err) {
     console.error("Failed to load products:", err);
+    if (grid) grid.innerHTML = '<p class="text-red-500 col-span-full text-center">Failed to load products. Ensure API URL is correct and deployed as public.</p>';
   }
 }
 
@@ -154,7 +151,7 @@ function renderProductGrid(grid) {
           <a href="product.html?id=${p.id}"><h3 class="font-display text-lg font-bold text-white mb-2 hover:text-primary transition">${p.name}</h3></a>
           <p class="font-inter text-gray-400 text-sm flex-grow">High-quality geek gear.</p>
           <div class="mt-4 flex items-center justify-between">
-            <span class="text-primary font-bold text-xl">$${p.price}</span>
+            <span class="text-primary font-bold text-xl">$${p.price.toFixed(2)}</span>
             <button onclick="addToCart('${p.id}')" class="bg-primary hover:bg-emerald-400 text-surface p-2 rounded-full transition">
               <span class="material-symbols-outlined">add_shopping_cart</span>
             </button>
@@ -184,7 +181,7 @@ function renderSingleProduct(container) {
       </div>
       <div class="flex flex-col justify-center">
         <h1 class="font-display text-4xl font-bold text-white mb-4">${p.name}</h1>
-        <p class="text-3xl text-primary font-bold mb-6">$${p.price}</p>
+        <p class="text-3xl text-primary font-bold mb-6">$${p.price.toFixed(2)}</p>
         <p class="text-gray-400 font-inter mb-6">Exclusive merchandise for true geeks. Premium materials, durable build, and striking aesthetics designed to stand out.</p>
         
         <div class="mb-8">
