@@ -1,4 +1,5 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbxZxZqpBXW1132BQ7pe8XUR-9BS_LyrUcEQX7nQtbCg9zbGsA8Me0imzdWjNvUieNrlFQ/exec";
+// REPLACE with your NEW deployment URL ending in /exec
+const API_URL = "https://script.google.com/macros/s/AKfycbxUUKYCpl8n57sAfQd2pM8hcQq04gaQq0fzz2rA2WeYMBlGMbxN8ffUX0jIiFinReUoMQ/exec";
 
 let productsList = [];
 let cart = JSON.parse(localStorage.getItem('ecom_cart')) || [];
@@ -120,7 +121,7 @@ async function fetchProducts() {
   try {
     const res = await fetch(API_URL, {
       method: 'GET',
-      redirect: 'follow' // Fix for Apps Script redirects
+      redirect: 'follow'
     });
     
     const data = await res.json();
@@ -130,10 +131,12 @@ async function fetchProducts() {
       
       if (grid) renderProductGrid(grid);
       if (singleProductContainer) renderSingleProduct(singleProductContainer);
+    } else {
+      console.error("API Error:", data.error);
     }
   } catch (err) {
     console.error("Failed to load products:", err);
-    if (grid) grid.innerHTML = '<p class="text-red-500 col-span-full text-center">Failed to load products. Ensure API URL is correct and deployed as public.</p>';
+    if (grid) grid.innerHTML = '<p class="text-red-500 col-span-full text-center">Failed to load products. Check the console for errors.</p>';
   }
 }
 
