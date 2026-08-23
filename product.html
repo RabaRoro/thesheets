@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>Product Details | The Geek Shop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <script>
+    tailwind.config = { theme: { extend: { colors: { surface: '#121212', primary: '#00ff88' }, fontFamily: { sans: ['Inter'], display: ['Space Grotesk'] } } } }
+  </script>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col font-sans">
+  
+  <!-- Shared Header -->
+  <header class="bg-surface border-b border-gray-800 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="font-display text-2xl font-bold text-white">THE<span class="text-primary">GEEK</span>SHOP.</a>
+      <button onclick="toggleCart()" class="relative text-white hover:text-primary transition">
+        <span class="material-symbols-outlined text-3xl">shopping_cart</span>
+        <span class="cart-count absolute -top-2 -right-2 bg-primary text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-5xl mx-auto px-4 py-12 w-full">
+    <a href="products.html" class="text-gray-400 hover:text-white flex items-center gap-1 mb-8">
+      <span class="material-symbols-outlined text-sm">arrow_back</span> Back to Catalog
+    </a>
+    
+    <!-- Single Product Injected Here by app.js -->
+    <div id="single-product-container">
+      <p class="text-gray-400 text-center animate-pulse">Loading product details...</p>
+    </div>
+  </main>
+
+  <!-- Include Cart Slider HTML here (omitted for brevity) -->
+  
+  <script src="app.js"></script>
+</body>
+</html>

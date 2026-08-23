@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>Checkout | The Geek Shop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = { theme: { extend: { colors: { surface: '#121212', primary: '#00ff88' }, fontFamily: { sans: ['Inter'], display: ['Space Grotesk'] } } } }
+  </script>
+</head>
+<body class="bg-black text-white min-h-screen font-sans py-12">
+  
+  <div class="max-w-3xl mx-auto px-4">
+    <div class="text-center mb-10">
+      <a href="index.html" class="font-display text-3xl font-bold">THE<span class="text-primary">GEEK</span>SHOP.</a>
+      <h2 class="text-xl text-gray-400 mt-2">Secure Checkout</h2>
+    </div>
+
+    <div class="bg-surface border border-gray-800 rounded-xl p-8 shadow-2xl">
+      <form id="order-form" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2">Full Name</label>
+            <input type="text" id="cust-name" required class="w-full bg-black border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-primary">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2">Phone Number</label>
+            <input type="tel" id="cust-phone" required class="w-full bg-black border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-primary">
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-2">Shipping Address</label>
+          <textarea id="cust-address" rows="3" required class="w-full bg-black border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-primary"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-400 mb-2">Payment Method</label>
+          <select id="cust-payment" required class="w-full bg-black border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-primary">
+            <option value="">Select a method...</option>
+            <option value="Cash on Delivery">Cash on Delivery</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+          </select>
+        </div>
+
+        <div class="border-t border-gray-800 pt-6 mt-6">
+          <div class="flex justify-between items-center mb-6">
+            <span class="text-lg font-bold">Total to Pay:</span>
+            <span class="text-2xl font-bold text-primary">$<span class="cart-total">0.00</span></span>
+          </div>
+          <button type="submit" id="submit-order-btn" class="w-full bg-primary text-black font-bold text-lg py-4 rounded-lg hover:bg-emerald-400 transition">
+            Confirm Order
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // Intercept checkout form to send data to Google Sheets
+    document.getElementById('order-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submit-order-btn');
+      submitBtn.innerText = "Processing...";
+      submitBtn.disabled = true;
+
+      const payload = {
+        action: "PLACE_ORDER",
+        cart: cart,
+        customer: {
+          name: document.getElementById('cust-name').value,
+          phone: document.getElementById('cust-phone').value,
+          address: document.getElementById('cust-address').value,
+          payment: document.getElementById('cust-payment').value
+        },
+        totalAmount: document.querySelector('.cart-total').innerText
+      };
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        
+        const result = await res.json();
+        if (result.success) {
+          alert('Order placed successfully!');
+          localStorage.removeItem('ecom_cart'); // Clear cart
+          window.location.href = 'index.html';  // Redirect home
+        } else {
+          alert(`Order failed: ${result.error}`);
+        }
+      } catch (err) {
+        alert("Error submitting order.");
+      } finally {
+        submitBtn.innerText = "Confirm Order";
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
