@@ -2,95 +2,308 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>E-Commerce Store & Admin</title>
+  <title>E-Commerce Store with Cart & Orders</title>
   <style>
-    body { font-family: sans-serif; margin: 20px; background: #f4f4f9; }
-    h2 { border-bottom: 2px solid #ccc; padding-bottom: 5px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-bottom: 40px; }
-    .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .card img { width: 100%; height: 120px; object-fit: cover; border-radius: 4px; }
-    .out-of-stock { color: red; font-weight: bold; }
-    .in-stock { color: green; font-weight: bold; }
-    form { background: white; padding: 15px; border-radius: 8px; max-width: 400px; }
-    form input { display: block; width: 95%; margin-bottom: 10px; padding: 8px; }
-    button { background: #007bff; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f4f4f9; }
+    header { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .cart-btn { background: #28a745; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+    
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-bottom: 40px; }
+    .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between; }
+    .card img { width: 100%; height: 140px; object-fit: cover; border-radius: 4px; }
+    .out-of-stock { color: #dc3545; font-weight: bold; }
+    .in-stock { color: #28a745; font-weight: bold; }
+    
+    .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 5px; width: 100%; }
+    .btn-primary { background: #007bff; color: white; }
+    .btn-warning { background: #ffc107; color: #212529; }
+    .btn-secondary { background: #17a2b8; color: white; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* Modal Styling */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: white; padding: 20px; border-radius: 8px; width: 400px; max-width: 90%; max-height: 85vh; overflow-y: auto; }
+    .close-btn { float: right; cursor: pointer; font-size: 20px; font-weight: bold; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 8px 0; }
+    form input, form select, form textarea { width: 95%; margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    
+    .admin-section { background: white; padding: 20px; border-radius: 8px; margin-top: 40px; }
   </style>
 </head>
 <body>
 
-  <h2>Storefront</h2>
+  <header>
+    <h2>Online Shop</h2>
+    <button class="cart-btn" onclick="openCart()">🛒 Cart (<span id="cart-count">0</span>)</button>
+  </header>
+
   <div id="product-grid" class="grid">Loading products...</div>
 
-  <h2>Admin Panel - Add Product</h2>
-  <form id="add-product-form">
-    <input type="text" id="name" placeholder="Product Name" required>
-    <input type="number" id="price" placeholder="Price ($)" step="0.01" required>
-    <input type="number" id="stock" placeholder="Stock Quantity" required>
-    <input type="url" id="image" placeholder="Image URL" required>
-    <button type="submit">Add Product</button>
-  </form>
+  <!-- Cart Modal -->
+  <div id="cart-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeCart()">&times;</span>
+      <h3>Your Shopping Cart</h3>
+      <div id="cart-items">Empty</div>
+      <h4>Total: $<span id="cart-total">0.00</span></h4>
+      <button class="btn btn-primary" id="checkout-btn" onclick="openCheckout()" disabled>Proceed to Checkout / Pre-Order</button>
+    </div>
+  </div>
 
-<script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbxVIYe8ln2VjYz1xFhpX2CVVc4dDZWDHirc4QdUtPYtdTTkUREuXpEA3XnSC_dgnO931w/exec";
+  <!-- Checkout / Order Form Modal -->
+  <div id="checkout-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeCheckout()">&times;</span>
+      <h3>Shipping & Payment Details</h3>
+      <form id="order-form">
+        <input type="text" id="cust-name" placeholder="Full Name" required>
+        <input type="tel" id="cust-phone" placeholder="Phone Number" required>
+        <textarea id="cust-address" placeholder="Shipping Address" rows="3" required></textarea>
+        <select id="cust-payment" required>
+          <option value="">Select Payment Method</option>
+          <option value="Cash on Delivery">Cash on Delivery</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+        </select>
+        <button type="submit" class="btn btn-primary" id="submit-order-btn">Confirm & Place Order</button>
+      </form>
+    </div>
+  </div>
 
-  async function fetchProducts() {
-    const container = document.getElementById('product-grid');
-    try {
-      const res = await fetch(API_URL, { redirect: "follow" });
-      const data = await res.json();
-      container.innerHTML = '';
+  <!-- Admin Panel -->
+  <div class="admin-section">
+    <h2>Admin Panel - Add New Product</h2>
+    <form id="add-product-form" style="max-width: 400px;">
+      <input type="text" id="p-name" placeholder="Product Name" required>
+      <input type="number" id="p-price" placeholder="Price ($)" step="0.01" required>
+      <input type="number" id="p-stock" placeholder="Stock Quantity" required>
+      <input type="url" id="p-image" placeholder="Image URL" required>
+      <button type="submit" class="btn btn-secondary">Add Product to Store</button>
+    </form>
+  </div>
 
-      if (!data || data.length === 0) {
-        container.innerHTML = '<p>No products found.</p>';
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbwrPh_ThUr1__g47yFmRIxUuRZGIuMX7ZARtaKRrEG_LKc_S6sx89KncT4Akm6QbW6iVA/exec";
+    let productsList = [];
+    let cart = JSON.parse(localStorage.getItem('ecom_cart')) || [];
+
+    function saveCart() {
+      localStorage.setItem('ecom_cart', JSON.stringify(cart));
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const countEl = document.getElementById('cart-count');
+      const totalEl = document.getElementById('cart-total');
+      const itemsEl = document.getElementById('cart-items');
+      const checkoutBtn = document.getElementById('checkout-btn');
+
+      let totalQty = 0;
+      let totalPrice = 0;
+      itemsEl.innerHTML = '';
+
+      if (cart.length === 0) {
+        itemsEl.innerHTML = '<p>Your cart is empty.</p>';
+        checkoutBtn.disabled = true;
+      } else {
+        checkoutBtn.disabled = false;
+        cart.forEach((item, index) => {
+          totalQty += item.qty;
+          totalPrice += item.price * item.qty;
+          itemsEl.innerHTML += `
+            <div class="cart-item">
+              <div>
+                <strong>${item.name}</strong> ${item.isPreorder ? '<small style="color:orange">(Pre-Order)</small>' : ''}<br>
+                $${item.price} x ${item.qty}
+              </div>
+              <div>
+                <button onclick="changeQty(${index}, -1)">-</button>
+                <button onclick="changeQty(${index}, 1)">+</button>
+                <button onclick="removeItem(${index})">&times;</button>
+              </div>
+            </div>
+          `;
+        });
+      }
+
+      countEl.innerText = totalQty;
+      totalEl.innerText = totalPrice.toFixed(2);
+    }
+
+    function addToCart(productId, isOrderNow = false) {
+      const prod = productsList.find(p => p.id == productId);
+      if (!prod) return;
+
+      const isPreorder = prod.stock <= 0;
+      const existing = cart.find(item => item.id == productId);
+
+      if (!isPreorder && existing && existing.qty + 1 > prod.stock) {
+        alert(`Cannot add more. Only ${prod.stock} items available in stock.`);
         return;
       }
 
-      data.forEach(p => {
-        const isAvailable = p.stock > 0;
-        container.innerHTML += `
-          <div class="card">
-            <img src="${p.image}" alt="${p.name}">
-            <h3>${p.name}</h3>
-            <p>Price: $${p.price}</p>
-            <p class="${isAvailable ? 'in-stock' : 'out-of-stock'}">
-              ${isAvailable ? `In Stock (${p.stock})` : 'Out of Stock'}
-            </p>
-          </div>
-        `;
-      });
-    } catch (err) {
-      container.innerHTML = 'Failed to load products. Check CORS and URL permissions.';
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.push({
+          id: prod.id,
+          name: prod.name,
+          price: parseFloat(prod.price),
+          stock: prod.stock,
+          qty: 1,
+          isPreorder: isPreorder
+        });
+      }
+
+      saveCart();
+      if (isOrderNow) {
+        openCheckout();
+      } else {
+        alert(`${prod.name} added to cart!`);
+      }
     }
-  }
 
-  document.getElementById('add-product-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const newProduct = {
-      id: Date.now(),
-      name: document.getElementById('name').value,
-      price: document.getElementById('price').value,
-      stock: document.getElementById('stock').value,
-      image: document.getElementById('image').value
-    };
+    function changeQty(index, delta) {
+      const item = cart[index];
+      if (delta > 0 && !item.isPreorder && item.qty + 1 > item.stock) {
+        alert(`Maximum stock reached (${item.stock} available).`);
+        return;
+      }
+      item.qty += delta;
+      if (item.qty <= 0) cart.splice(index, 1);
+      saveCart();
+    }
 
-    try {
-      // Sending as text/plain bypasses the browser CORS preflight (OPTIONS) check
+    function removeItem(index) {
+      cart.splice(index, 1);
+      saveCart();
+    }
+
+    async function fetchProducts() {
+      const container = document.getElementById('product-grid');
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        
+        if (!data.success) {
+          container.innerHTML = `<p style="color:red">Error: ${data.error}</p>`;
+          return;
+        }
+
+        productsList = data.products || [];
+        container.innerHTML = '';
+
+        if (productsList.length === 0) {
+          container.innerHTML = '<p>No products found.</p>';
+          return;
+        }
+
+        productsList.forEach(p => {
+          const isAvailable = p.stock > 0;
+          container.innerHTML += `
+            <div class="card">
+              <div>
+                <img src="${p.image || 'https://via.placeholder.com/150'}" alt="${p.name}">
+                <h3>${p.name}</h3>
+                <p>Price: $${p.price}</p>
+                <p class="${isAvailable ? 'in-stock' : 'out-of-stock'}">
+                  ${isAvailable ? `In Stock (${p.stock})` : 'Stock Out (Pre-Order Available)'}
+                </p>
+              </div>
+              <div>
+                ${isAvailable ? `
+                  <button class="btn btn-primary" onclick="addToCart(${p.id})">Add to Cart</button>
+                  <button class="btn btn-secondary" onclick="addToCart(${p.id}, true)">Order Now</button>
+                ` : `
+                  <button class="btn btn-warning" onclick="addToCart(${p.id}, true)">Pre-Order Now</button>
+                `}
+              </div>
+            </div>
+          `;
+        });
+      } catch (err) {
+        container.innerHTML = `<p style="color:red">Connection Error: ${err.message}</p>`;
+      }
+    }
+
+    // Modal Control Functions
+    function openCart() { document.getElementById('cart-modal').style.display = 'flex'; }
+    function closeCart() { document.getElementById('cart-modal').style.display = 'none'; }
+    function openCheckout() { 
+      closeCart(); 
+      document.getElementById('checkout-modal').style.display = 'flex'; 
+    }
+    function closeCheckout() { document.getElementById('checkout-modal').style.display = 'none'; }
+
+    // Order Submission Handler
+    document.getElementById('order-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submit-order-btn');
+      submitBtn.innerText = "Processing Order...";
+      submitBtn.disabled = true;
+
+      const payload = {
+        action: "PLACE_ORDER",
+        cart: cart,
+        customer: {
+          name: document.getElementById('cust-name').value,
+          phone: document.getElementById('cust-phone').value,
+          address: document.getElementById('cust-address').value,
+          payment: document.getElementById('cust-payment').value
+        },
+        totalAmount: document.getElementById('cart-total').innerText
+      };
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+        
+        const result = await res.json();
+        if (result.success) {
+          alert('Order placed successfully!');
+          cart = [];
+          saveCart();
+          closeCheckout();
+          fetchProducts(); // Refresh stock counts instantly
+        } else {
+          alert(`Order failed: ${result.error}`);
+        }
+      } catch (err) {
+        alert("Error submitting order. Please check network connection.");
+      } finally {
+        submitBtn.innerText = "Confirm & Place Order";
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Admin Add Product Handler
+    document.getElementById('add-product-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        action: "ADD_PRODUCT",
+        id: Date.now(),
+        name: document.getElementById('p-name').value,
+        price: document.getElementById('p-price').value,
+        stock: document.getElementById('p-stock').value,
+        image: document.getElementById('p-image').value
+      };
+
       await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(newProduct)
+        body: JSON.stringify(payload)
       });
 
-      alert('Product submitted successfully!');
+      alert('Product added!');
       document.getElementById('add-product-form').reset();
-      setTimeout(fetchProducts, 1500);
-    } catch (err) {
-      alert('Error adding product.');
-    }
-  });
+      fetchProducts();
+    });
 
-  fetchProducts();
-</script>
+    // Initial Load
+    updateCartUI();
+    fetchProducts();
+  </script>
 </body>
 </html>
