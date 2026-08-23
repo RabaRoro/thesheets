@@ -1,5 +1,5 @@
 // REPLACE with your NEW deployment URL ending in /exec
-const API_URL = "https://script.google.com/macros/s/AKfycbxUUKYCpl8n57sAfQd2pM8hcQq04gaQq0fzz2rA2WeYMBlGMbxN8ffUX0jIiFinReUoMQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwIRZLLTdfsvCJQ3Cy0S5t3j1pfQagHrM8mYo93IAjMDQMOUqmsogpvMbTryK0tqRbDxQ/exec";
 
 let productsList = [];
 let cart = JSON.parse(localStorage.getItem('ecom_cart')) || [];
