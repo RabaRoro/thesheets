@@ -26,8 +26,6 @@
     .close-btn { float: right; cursor: pointer; font-size: 20px; font-weight: bold; }
     .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 8px 0; }
     form input, form select, form textarea { width: 95%; margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-    
-    .admin-section { background: white; padding: 20px; border-radius: 8px; margin-top: 40px; }
   </style>
 </head>
 <body>
@@ -68,8 +66,6 @@
       </form>
     </div>
   </div>
-
-
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbxYau4l1KrMfvaf4f7lUYFw6eLriddA3djUC9Qh8XQMQIcqAyioAwv7T4xqHgrwfmsNnw/exec";
@@ -266,29 +262,6 @@
         submitBtn.innerText = "Confirm & Place Order";
         submitBtn.disabled = false;
       }
-    });
-
-    // Admin Add Product Handler
-    document.getElementById('add-product-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const payload = {
-        action: "ADD_PRODUCT",
-        id: Date.now(),
-        name: document.getElementById('p-name').value,
-        price: document.getElementById('p-price').value,
-        stock: document.getElementById('p-stock').value,
-        image: document.getElementById('p-image').value
-      };
-
-      await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
-      });
-
-      alert('Product added!');
-      document.getElementById('add-product-form').reset();
-      fetchProducts();
     });
 
     // Initial Load
