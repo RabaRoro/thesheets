@@ -30,57 +30,67 @@
     <button type="submit">Add Product</button>
   </form>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxVIYe8ln2VjYz1xFhpX2CVVc4dDZWDHirc4QdUtPYtdTTkUREuXpEA3XnSC_dgnO931w/exec";
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbxVIYe8ln2VjYz1xFhpX2CVVc4dDZWDHirc4QdUtPYtdTTkUREuXpEA3XnSC_dgnO931w/exec";
 
-    async function fetchProducts() {
-      const container = document.getElementById('product-grid');
-      try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
-        container.innerHTML = '';
+  async function fetchProducts() {
+    const container = document.getElementById('product-grid');
+    try {
+      const res = await fetch(API_URL, { redirect: "follow" });
+      const data = await res.json();
+      container.innerHTML = '';
 
-        data.forEach(p => {
-          const isAvailable = p.stock > 0;
-          container.innerHTML += `
-            <div class="card">
-              <img src="${p.image}" alt="${p.name}">
-              <h3>${p.name}</h3>
-              <p>Price: $${p.price}</p>
-              <p class="${isAvailable ? 'in-stock' : 'out-of-stock'}">
-                ${isAvailable ? `In Stock (${p.stock})` : 'Out of Stock'}
-              </p>
-            </div>
-          `;
-        });
-      } catch (err) {
-        container.innerHTML = 'Failed to load products.';
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p>No products found.</p>';
+        return;
       }
+
+      data.forEach(p => {
+        const isAvailable = p.stock > 0;
+        container.innerHTML += `
+          <div class="card">
+            <img src="${p.image}" alt="${p.name}">
+            <h3>${p.name}</h3>
+            <p>Price: $${p.price}</p>
+            <p class="${isAvailable ? 'in-stock' : 'out-of-stock'}">
+              ${isAvailable ? `In Stock (${p.stock})` : 'Out of Stock'}
+            </p>
+          </div>
+        `;
+      });
+    } catch (err) {
+      container.innerHTML = 'Failed to load products. Check CORS and URL permissions.';
     }
+  }
 
-    document.getElementById('add-product-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const newProduct = {
-        id: Date.now(),
-        name: document.getElementById('name').value,
-        price: document.getElementById('price').value,
-        stock: document.getElementById('stock').value,
-        image: document.getElementById('image').value
-      };
+  document.getElementById('add-product-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const newProduct = {
+      id: Date.now(),
+      name: document.getElementById('name').value,
+      price: document.getElementById('price').value,
+      stock: document.getElementById('stock').value,
+      image: document.getElementById('image').value
+    };
 
+    try {
+      // Sending as text/plain bypasses the browser CORS preflight (OPTIONS) check
       await fetch(API_URL, {
         method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(newProduct)
       });
 
-      alert('Product submitted! Refreshing...');
+      alert('Product submitted successfully!');
       document.getElementById('add-product-form').reset();
       setTimeout(fetchProducts, 1500);
-    });
+    } catch (err) {
+      alert('Error adding product.');
+    }
+  });
 
-    fetchProducts();
-  </script>
+  fetchProducts();
+</script>
 </body>
 </html>
