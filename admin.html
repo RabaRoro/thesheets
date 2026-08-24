@@ -2,182 +2,257 @@
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Dashboard | The Geek Shop</title>
+  <title>Admin Terminal | GEEK.SYS</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = { theme: { extend: { colors: { surface: '#121212', primary: '#00ff88' }, fontFamily: { sans: ['Inter'], display: ['Space Grotesk'] } } } }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <style>
+    body { font-family: 'Space Mono', monospace; background-color: #050505; color: #e2e8f0; overflow-x: hidden; }
+    .heading { font-family: 'Orbitron', sans-serif; }
+    .bg-grid { background-image: linear-gradient(#0f172a 1px, transparent 1px), linear-gradient(90deg, #0f172a 1px, transparent 1px); background-size: 20px 20px; }
+    
+    /* Form Inputs for Admin */
+    input, select, textarea { background: #0a0a0a; border: 1px solid #333; color: white; padding: 0.5rem; width: 100%; outline: none; transition: 0.3s; font-size: 0.875rem; }
+    input:focus, select:focus, textarea:focus { border-color: #00ffcc; box-shadow: 0 0 5px rgba(0,255,204,0.3); }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #000; border-left: 1px solid #1f2937; }
+    ::-webkit-scrollbar-thumb { background: #00ffcc; border-radius: 0; }
+  </style>
 </head>
-<body class="bg-black text-white min-h-screen font-sans">
+<body class="min-h-screen flex flex-col bg-grid">
 
-  <!-- LOGIN SCREEN -->
-  <div id="login-screen" class="max-w-sm mx-auto mt-32 p-8 bg-surface rounded-xl border border-gray-800 shadow-2xl">
-    <h2 class="font-display text-2xl font-bold text-center mb-6 text-primary">Admin Login</h2>
-    <form id="login-form" class="space-y-4">
-      <input type="text" id="username" placeholder="Username" required class="w-full bg-black border border-gray-700 rounded p-3 text-white">
-      <input type="password" id="password" placeholder="Password" required class="w-full bg-black border border-gray-700 rounded p-3 text-white">
-      <button type="submit" id="login-btn" class="w-full bg-primary text-black font-bold py-3 rounded">Log In</button>
-    </form>
-    <p id="login-error" class="text-red-500 text-sm mt-4 text-center hidden">Invalid credentials</p>
+  <!-- Admin Header -->
+  <header class="border-b border-red-500/50 bg-black/90 px-6 py-3 flex justify-between items-center text-xs uppercase tracking-widest sticky top-0 z-50">
+    <div class="flex items-center gap-4">
+      <span class="text-white heading text-xl">GEEK.SYS <span class="text-red-500">// ADMIN_ROOT</span></span>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="text-red-400 font-bold animate-pulse">OVERRIDE_ACTIVE</span>
+      <a href="index.html" class="text-gray-500 hover:text-white border border-gray-800 px-3 py-1 bg-gray-900">Return_to_Nexus</a>
+    </div>
+  </header>
+
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 border-r border-gray-800 bg-black/80 flex flex-col hidden md:flex">
+      <nav class="flex-1 p-4 space-y-2 uppercase tracking-widest text-xs">
+        <button onclick="switchTab('dashboard')" id="tab-dashboard" class="w-full text-left px-4 py-3 border border-red-500/50 bg-red-500/10 text-red-400 font-bold transition-all">01_Dashboard</button>
+        <button onclick="switchTab('inventory')" id="tab-inventory" class="w-full text-left px-4 py-3 border border-gray-800 text-gray-400 hover:border-gray-500 hover:text-white transition-all">02_Inventory</button>
+        <button onclick="switchTab('orders')" id="tab-orders" class="w-full text-left px-4 py-3 border border-gray-800 text-gray-400 hover:border-gray-500 hover:text-white transition-all">03_Orders</button>
+      </nav>
+      <div class="p-4 border-t border-gray-800 text-[10px] text-gray-600 font-mono">
+        SYS_UPTIME: 99.99%<br>
+        ENCRYPTION: MIL-SPEC
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-6 overflow-y-auto">
+      
+      <!-- DASHBOARD TAB -->
+      <section id="view-dashboard" class="space-y-6 block">
+        <h2 class="heading text-2xl text-white uppercase tracking-widest border-b border-gray-800 pb-2">System Overview</h2>
+        
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="border border-red-500/30 bg-black/60 p-4 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-8 h-8 bg-red-500/10 flex items-center justify-center border-l border-b border-red-500/30"><span class="material-symbols-outlined text-red-500 text-sm">monitoring</span></div>
+            <p class="text-[10px] text-gray-500 mb-1 uppercase">Total_Revenue (24H)</p>
+            <p class="text-white font-bold text-3xl heading">$14,892.<span class="text-sm text-gray-500">00</span></p>
+            <p class="text-green-400 text-xs mt-2">+12.4% vs prev cycle</p>
+          </div>
+          
+          <div class="border border-gray-800 bg-black/60 p-4">
+            <p class="text-[10px] text-gray-500 mb-1 uppercase">Active_Telemetry_Links</p>
+            <p class="text-cyan-400 font-bold text-3xl heading">842</p>
+            <p class="text-gray-400 text-xs mt-2">Hardware currently online</p>
+          </div>
+          
+          <div class="border border-gray-800 bg-black/60 p-4">
+            <p class="text-[10px] text-gray-500 mb-1 uppercase">Pending_Dispatches</p>
+            <p class="text-orange-400 font-bold text-3xl heading">16</p>
+            <p class="text-gray-400 text-xs mt-2">Awaiting drone assignment</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- INVENTORY TAB -->
+      <section id="view-inventory" class="space-y-6 hidden">
+        <div class="flex justify-between items-end border-b border-gray-800 pb-2">
+          <h2 class="heading text-2xl text-white uppercase tracking-widest">Hardware_Inventory_DB</h2>
+          <button onclick="toggleModal('add-product-modal')" class="border border-cyan-500 text-cyan-500 hover:bg-cyan-500 hover:text-black px-4 py-2 text-xs uppercase tracking-widest font-bold transition-colors">
+            + Init_New_Hardware
+          </button>
+        </div>
+
+        <!-- Inventory Table -->
+        <div class="border border-gray-800 bg-black/80 overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-gray-700 bg-gray-900/50 text-xs uppercase tracking-widest text-gray-400">
+                <th class="p-3">ID</th>
+                <th class="p-3">Hardware_Name</th>
+                <th class="p-3">Category</th>
+                <th class="p-3">Price</th>
+                <th class="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-inventory-list" class="text-sm divide-y divide-gray-800">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ORDERS TAB -->
+      <section id="view-orders" class="space-y-6 hidden">
+        <h2 class="heading text-2xl text-white uppercase tracking-widest border-b border-gray-800 pb-2">Transaction_Ledger</h2>
+        
+        <div class="border border-gray-800 bg-black/80 overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-gray-700 bg-gray-900/50 text-xs uppercase tracking-widest text-gray-400">
+                <th class="p-3">Order_Hash</th>
+                <th class="p-3">Netrunner_Alias</th>
+                <th class="p-3">Total</th>
+                <th class="p-3">Status</th>
+              </tr>
+            </thead>
+            <tbody class="text-sm divide-y divide-gray-800">
+              <tr class="hover:bg-gray-900/50">
+                <td class="p-3 font-mono text-cyan-400">#0x88A2...9B</td>
+                <td class="p-3 text-white">V_Merc</td>
+                <td class="p-3 font-mono">$1,250.00</td>
+                <td class="p-3"><span class="px-2 py-1 bg-green-500/20 text-green-400 border border-green-500/50 text-xs">DISPATCHED</span></td>
+              </tr>
+              <tr class="hover:bg-gray-900/50">
+                <td class="p-3 font-mono text-cyan-400">#0x77B1...4C</td>
+                <td class="p-3 text-white">David_M</td>
+                <td class="p-3 font-mono">$299.99</td>
+                <td class="p-3"><span class="px-2 py-1 bg-orange-500/20 text-orange-400 border border-orange-500/50 text-xs">PROCESSING</span></td>
+              </tr>
+              <tr class="hover:bg-gray-900/50">
+                <td class="p-3 font-mono text-cyan-400">#0x99C3...1A</td>
+                <td class="p-3 text-white">Lucy_Net</td>
+                <td class="p-3 font-mono">$499.00</td>
+                <td class="p-3"><span class="px-2 py-1 bg-red-500/20 text-red-400 border border-red-500/50 text-xs">PAYMENT_ERR</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
   </div>
 
-  <!-- DASHBOARD SCREEN -->
-  <div id="dashboard-screen" class="hidden max-w-6xl mx-auto p-6">
-    <div class="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
-      <h2 class="font-display text-3xl font-bold">Store Command Center</h2>
-      <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded font-bold hover:bg-red-600 transition">Log Out</button>
-    </div>
-
-    <div class="flex gap-4 mb-6">
-      <button onclick="switchTab('orders')" id="tab-btn-orders" class="tab-btn px-6 py-2 rounded bg-primary text-black font-bold">Orders</button>
-      <button onclick="switchTab('add-product')" id="tab-btn-add-product" class="tab-btn px-6 py-2 rounded bg-surface border border-gray-700 text-gray-300 font-bold">Add Product</button>
-    </div>
-
-    <!-- Orders Tab -->
-    <div id="tab-orders" class="tab-content block bg-surface rounded-xl border border-gray-800 overflow-hidden">
-      <div class="p-4 border-b border-gray-800 flex justify-between items-center">
-        <h3 class="font-bold text-lg">Recent Orders</h3>
-        <button onclick="fetchOrders()" class="text-sm bg-gray-700 px-3 py-1 rounded hover:bg-gray-600">Refresh</button>
+  <!-- Add Product Modal Overlay -->
+  <div id="add-product-modal" class="fixed inset-0 bg-black/90 z-50 hidden backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="border border-cyan-500/50 bg-black max-w-lg w-full relative">
+      <div class="p-4 border-b border-gray-800 flex justify-between items-center bg-gray-900/50">
+        <h3 class="heading font-bold text-cyan-500 uppercase tracking-widest">Sys.Add_New_Hardware</h3>
+        <button onclick="toggleModal('add-product-modal')" class="text-gray-400 hover:text-white"><span class="material-symbols-outlined">close</span></button>
       </div>
-      <div class="overflow-x-auto p-4">
-        <table class="w-full text-left text-sm">
-          <thead class="text-gray-400 border-b border-gray-700">
-            <tr>
-              <th class="pb-3">Order ID / Date</th>
-              <th class="pb-3">Customer</th>
-              <th class="pb-3">Items</th>
-              <th class="pb-3">Total</th>
-              <th class="pb-3">Status</th>
-            </tr>
-          </thead>
-          <tbody id="orders-table-body" class="divide-y divide-gray-800">
-            <tr><td colspan="5" class="py-4 text-center">Loading orders...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Add Product Tab -->
-    <div id="tab-add-product" class="tab-content hidden max-w-xl bg-surface p-6 rounded-xl border border-gray-800">
-      <h3 class="font-bold text-lg mb-4 border-b border-gray-800 pb-2">Add New Product</h3>
-      <form id="add-product-form" class="space-y-4">
-        <input type="text" id="p-name" placeholder="Product Name" required class="w-full bg-black border border-gray-700 rounded p-3">
-        <input type="number" id="p-price" placeholder="Price ($)" step="0.01" required class="w-full bg-black border border-gray-700 rounded p-3">
-        <input type="number" id="p-stock" placeholder="Stock Quantity" required class="w-full bg-black border border-gray-700 rounded p-3">
-        <input type="url" id="p-image" placeholder="Image URL (e.g. from Imgur)" required class="w-full bg-black border border-gray-700 rounded p-3">
-        <button type="submit" class="w-full bg-primary text-black font-bold py-3 rounded">Add to Database</button>
+      
+      <form class="p-6 space-y-4" onsubmit="handleMockSubmit(event)">
+        <div>
+          <label class="block text-[10px] text-cyan-500 uppercase tracking-widest mb-1">Hardware Name</label>
+          <input type="text" required placeholder="e.g. Plasma Blade" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[10px] text-cyan-500 uppercase tracking-widest mb-1">Category</label>
+            <select required>
+              <option>Weaponry</option>
+              <option>Cyberware</option>
+              <option>Apparel</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] text-cyan-500 uppercase tracking-widest mb-1">Price (Credits)</label>
+            <input type="number" required placeholder="0.00" step="0.01" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-[10px] text-cyan-500 uppercase tracking-widest mb-1">Image URL</label>
+          <input type="url" required placeholder="https://..." />
+        </div>
+        <div>
+          <label class="block text-[10px] text-cyan-500 uppercase tracking-widest mb-1">Description</label>
+          <textarea rows="3" required placeholder="Enter hardware specs..."></textarea>
+        </div>
+        
+        <div class="pt-4 border-t border-gray-800 flex gap-4">
+          <button type="button" onclick="toggleModal('add-product-modal')" class="flex-1 border border-gray-700 text-gray-400 py-3 text-xs uppercase tracking-widest hover:border-gray-400">Cancel</button>
+          <button type="submit" class="flex-1 bg-cyan-500 text-black font-bold py-3 text-xs uppercase tracking-widest hover:bg-cyan-400 transition-colors">Compile & Save</button>
+        </div>
       </form>
     </div>
   </div>
 
+  <!-- Load the main app.js to access the 'products' array -->
+  <script src="app.js"></script>
+  
+  <!-- Admin Specific Script -->
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxYau4l1KrMfvaf4f7lUYFw6eLriddA3djUC9Qh8XQMQIcqAyioAwv7T4xqHgrwfmsNnw/exec";
-
-    // Authentication Logic
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const u = document.getElementById('username').value;
-      const p = document.getElementById('password').value;
-      const btn = document.getElementById('login-btn');
-      
-      btn.innerText = "Authenticating...";
-      try {
-        const res = await fetch(`${API_URL}?action=LOGIN&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
-        const data = await res.json();
-        if (data.success) {
-          sessionStorage.setItem('admin_user', u);
-          sessionStorage.setItem('admin_pass', p);
-          showDashboard();
-        } else {
-          document.getElementById('login-error').classList.remove('hidden');
-        }
-      } catch (err) { alert("Network error connecting to Google."); } 
-      finally { btn.innerText = "Log In"; }
-    });
-
-    if (sessionStorage.getItem('admin_user')) showDashboard();
-
-    function showDashboard() {
-      document.getElementById('login-screen').classList.add('hidden');
-      document.getElementById('dashboard-screen').classList.remove('hidden');
-      fetchOrders();
-    }
-
-    function logout() {
-      sessionStorage.clear();
-      location.reload();
-    }
-
-    // Tabs
+    // Tab Switching Logic
     function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-      document.querySelectorAll('.tab-btn').forEach(b => {
-        b.classList.remove('bg-primary', 'text-black');
-        b.classList.add('bg-surface', 'text-gray-300');
+      // Hide all views
+      document.getElementById('view-dashboard').classList.add('hidden');
+      document.getElementById('view-inventory').classList.add('hidden');
+      document.getElementById('view-orders').classList.add('hidden');
+      
+      // Reset tab styles
+      const tabs = ['dashboard', 'inventory', 'orders'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        btn.className = "w-full text-left px-4 py-3 border border-gray-800 text-gray-400 hover:border-gray-500 hover:text-white transition-all";
       });
+
+      // Show selected view and activate tab
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabId}`).className = "w-full text-left px-4 py-3 border border-red-500/50 bg-red-500/10 text-red-400 font-bold transition-all";
       
-      document.getElementById('tab-' + tabId).classList.remove('hidden');
-      const activeBtn = document.getElementById('tab-btn-' + tabId);
-      activeBtn.classList.remove('bg-surface', 'text-gray-300');
-      activeBtn.classList.add('bg-primary', 'text-black');
+      // If inventory is clicked, render the table
+      if (tabId === 'inventory') renderAdminInventory();
     }
 
-    // Fetch Orders
-    async function fetchOrders() {
-      const u = sessionStorage.getItem('admin_user');
-      const p = sessionStorage.getItem('admin_pass');
-      const tbody = document.getElementById('orders-table-body');
-      tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center animate-pulse">Fetching from Google Sheets...</td></tr>';
+    // Render Inventory Table using the 'products' array from app.js
+    function renderAdminInventory() {
+      const tbody = document.getElementById('admin-inventory-list');
       
-      try {
-        const res = await fetch(`${API_URL}?action=FETCH_ORDERS&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
-        const data = await res.json();
-        if (!data.success) return logout();
-        
-        tbody.innerHTML = '';
-        if (data.orders.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-gray-500">No orders found.</td></tr>';
-          return;
-        }
+      // Check if products loaded from app.js
+      if (typeof products === 'undefined') {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-red-500">ERR: Product database not found. Ensure app.js is linked.</td></tr>`;
+        return;
+      }
 
-        data.orders.forEach(ord => {
-          tbody.innerHTML += `
-            <tr class="hover:bg-gray-800 transition">
-              <td class="py-3 pr-2"><span class="text-xs text-primary block">${ord["Order ID"]}</span><span class="text-gray-400 text-xs">${ord["Date"]}</span></td>
-              <td class="py-3 pr-2"><strong>${ord["Customer Name"]}</strong><br><span class="text-xs text-gray-400">${ord["Phone"]}</span></td>
-              <td class="py-3 pr-2 text-xs">${ord["Items"]}</td>
-              <td class="py-3 pr-2 font-bold text-white">$${ord["Total ($)"]}<br><span class="text-xs font-normal text-gray-400">${ord["Payment Method"]}</span></td>
-              <td class="py-3 pr-2 text-yellow-500 font-bold text-xs">${ord["Status"]}</td>
-            </tr>
-          `;
-        });
-      } catch (err) { tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-red-500 text-center">Error loading orders.</td></tr>'; }
+      tbody.innerHTML = products.map(p => `
+        <tr class="hover:bg-gray-900/50 border-l-2 border-transparent hover:border-cyan-500 transition-colors">
+          <td class="p-3 font-mono text-gray-500">#${String(p.id).padStart(3, '0')}</td>
+          <td class="p-3 text-white font-bold">${p.name}</td>
+          <td class="p-3"><span class="px-2 py-1 bg-gray-800 text-xs border border-gray-700">${p.category}</span></td>
+          <td class="p-3 font-mono text-cyan-400">$${p.price.toFixed(2)}</td>
+          <td class="p-3 text-right space-x-2">
+            <button class="text-gray-400 hover:text-cyan-400" title="Edit"><span class="material-symbols-outlined text-sm">edit</span></button>
+            <button class="text-gray-400 hover:text-red-500" title="Delete"><span class="material-symbols-outlined text-sm">delete</span></button>
+          </td>
+        </tr>
+      `).join("");
     }
 
-    // Add Product
-    document.getElementById('add-product-form').addEventListener('submit', async (e) => {
+    // Modal Controls
+    function toggleModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.toggle('hidden');
+    }
+
+    function handleMockSubmit(e) {
       e.preventDefault();
-      const payload = {
-        action: "ADD_PRODUCT",
-        user: sessionStorage.getItem('admin_user'), pass: sessionStorage.getItem('admin_pass'),
-        id: Date.now(),
-        name: document.getElementById('p-name').value,
-        price: document.getElementById('p-price').value,
-        stock: document.getElementById('p-stock').value,
-        image: document.getElementById('p-image').value
-      };
-
-      try {
-        await fetch(API_URL, {
-          method: 'POST', mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        alert('Product added successfully!');
-        document.getElementById('add-product-form').reset();
-      } catch (err) { alert("Failed to add product."); }
-    });
+      alert("SYS.MSG: New Hardware Compiled and added to database (Mock).");
+      toggleModal('add-product-modal');
+    }
   </script>
 </body>
 </html>

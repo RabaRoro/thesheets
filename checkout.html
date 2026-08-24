@@ -2,105 +2,133 @@
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
-  <title>Checkout | The Geek Shop</title>
+  <title>Checkout Protocol | GEEK.SYS</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = { theme: { extend: { colors: { surface: '#121212', primary: '#00ff88' }, fontFamily: { sans: ['Inter'], display: ['Space Grotesk'] } } } }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Space Mono', monospace; background-color: #050505; color: #e2e8f0; }
+    .heading { font-family: 'Orbitron', sans-serif; }
+    input, select { background: #0a0a0a; border: 1px solid #333; color: white; padding: 0.75rem; width: 100%; outline: none; transition: 0.3s; }
+    input:focus, select:focus { border-color: #00ffcc; box-shadow: 0 0 5px rgba(0,255,204,0.3); }
+    .input-group label { display: block; font-size: 0.75rem; color: #00ffcc; margin-bottom: 0.25rem; text-transform: uppercase; }
+  </style>
 </head>
-<body class="bg-black text-white min-h-screen font-sans py-12">
-  
-  <div class="max-w-3xl mx-auto px-4">
-    <div class="text-center mb-10">
-      <a href="index.html" class="font-display text-3xl font-bold">THE<span class="text-primary">GEEK</span>SHOP.</a>
-      <h2 class="text-xl text-gray-400 mt-2">Secure Checkout</h2>
+<body class="min-h-screen flex flex-col bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-fixed">
+
+  <header class="border-b border-gray-800 bg-black py-4">
+    <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+      <a href="index.html" class="heading font-bold text-xl text-white tracking-widest">GEEK<span class="text-cyan-500">.</span>SYS</a>
+      <span class="text-xs text-gray-500 uppercase tracking-widest">Secure Checkout Gateway</span>
     </div>
+  </header>
 
-    <div class="bg-surface border border-gray-800 rounded-xl p-8 shadow-2xl">
-      <form id="order-form" class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-sm font-medium text-gray-400 mb-2">Full Name</label>
-            <input type="text" id="cust-name" required class="w-full bg-black border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-primary">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-400 mb-2">Phone Number</label>
-            <input type="tel" id="cust-phone" required class="w-full bg-black border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-primary">
-          </div>
-        </div>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-400 mb-2">Shipping Address</label>
-          <textarea id="cust-address" rows="3" required class="w-full bg-black border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-primary"></textarea>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-400 mb-2">Payment Method</label>
-          <select id="cust-payment" required class="w-full bg-black border border-gray-700 rounded-lg p-3 text-white focus:outline-none focus:border-primary">
-            <option value="">Select a method...</option>
-            <option value="Cash on Delivery">Cash on Delivery</option>
-            <option value="Bank Transfer">Bank Transfer</option>
-          </select>
-        </div>
-
-        <div class="border-t border-gray-800 pt-6 mt-6">
-          <div class="flex justify-between items-center mb-6">
-            <span class="text-lg font-bold">Total to Pay:</span>
-            <span class="text-2xl font-bold text-primary">$<span class="cart-total">0.00</span></span>
-          </div>
-          <button type="submit" id="submit-order-btn" class="w-full bg-primary text-black font-bold text-lg py-4 rounded-lg hover:bg-emerald-400 transition">
-            Confirm Order
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
-  <script>
-    // Intercept checkout form to send data to Google Sheets
-    document.getElementById('order-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
+  <main class="max-w-6xl mx-auto px-4 py-12 flex-1 w-full grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <!-- Forms -->
+    <form class="lg:col-span-2 space-y-8" onsubmit="processOrder(event)">
       
-      const submitBtn = document.getElementById('submit-order-btn');
-      submitBtn.innerText = "Processing...";
-      submitBtn.disabled = true;
+      <!-- Contact -->
+      <div class="p-6 border border-gray-800 bg-gray-950 relative">
+        <h2 class="heading text-lg text-white mb-4 uppercase tracking-widest border-b border-gray-800 pb-2">01_Contact_Data</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="input-group"><label>Netrunner Alias / Full Name</label><input type="text" required placeholder="V" /></div>
+          <div class="input-group"><label>Comms Link (Email)</label><input type="email" required placeholder="v@nightcity.net" /></div>
+        </div>
+      </div>
 
-      const payload = {
-        action: "PLACE_ORDER",
-        cart: cart,
-        customer: {
-          name: document.getElementById('cust-name').value,
-          phone: document.getElementById('cust-phone').value,
-          address: document.getElementById('cust-address').value,
-          payment: document.getElementById('cust-payment').value
-        },
-        totalAmount: document.querySelector('.cart-total').innerText
-      };
+      <!-- Shipping -->
+      <div class="p-6 border border-gray-800 bg-gray-950">
+        <h2 class="heading text-lg text-white mb-4 uppercase tracking-widest border-b border-gray-800 pb-2">02_Drop_Location</h2>
+        <div class="space-y-4">
+          <div class="input-group"><label>Street / Sector</label><input type="text" required placeholder="Megabuilding H10, Apt 0416" /></div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="input-group"><label>City</label><input type="text" required placeholder="Night City" /></div>
+            <div class="input-group"><label>District Code (Zip)</label><input type="text" required placeholder="94016" /></div>
+          </div>
+        </div>
+      </div>
 
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
+      <!-- Payment -->
+      <div class="p-6 border border-gray-800 bg-gray-950">
+        <h2 class="heading text-lg text-white mb-4 uppercase tracking-widest border-b border-gray-800 pb-2">03_Credit_Transfer</h2>
         
-        const result = await res.json();
-        if (result.success) {
-          alert('Order placed successfully!');
-          localStorage.removeItem('ecom_cart'); // Clear cart
-          window.location.href = 'index.html';  // Redirect home
-        } else {
-          alert(`Order failed: ${result.error}`);
-        }
-      } catch (err) {
-        alert("Error submitting order.");
-      } finally {
-        submitBtn.innerText = "Confirm Order";
-        submitBtn.disabled = false;
-      }
-    });
+        <div class="flex gap-4 mb-6">
+          <label class="flex-1 border border-cyan-500/50 bg-cyan-500/10 p-3 text-center cursor-pointer hover:bg-cyan-500/20">
+            <input type="radio" name="pay" class="hidden" checked onchange="togglePay('cc')">
+            <span class="text-cyan-400 text-xs uppercase tracking-widest font-bold">CredChip (Card)</span>
+          </label>
+          <label class="flex-1 border border-gray-700 p-3 text-center cursor-pointer hover:border-cyan-500">
+            <input type="radio" name="pay" class="hidden" onchange="togglePay('crypto')">
+            <span class="text-gray-400 text-xs uppercase tracking-widest">Crypto Wallet</span>
+          </label>
+        </div>
+
+        <div id="cc-fields" class="space-y-4 block">
+          <div class="input-group"><label>Card Number</label><input type="text" placeholder="xxxx-xxxx-xxxx-xxxx" /></div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="input-group"><label>EXP (MM/YY)</label><input type="text" placeholder="12/28" /></div>
+            <div class="input-group"><label>CVC / Security Hash</label><input type="password" placeholder="***" /></div>
+          </div>
+        </div>
+
+        <div id="crypto-fields" class="hidden p-4 border border-cyan-500/30 text-center bg-black">
+          <p class="text-cyan-500 text-xs uppercase mb-2">Send precisely to wallet address:</p>
+          <p class="font-mono text-white text-sm break-all select-all">0x71C7656EC7ab88b098defB751B7401B5f6d8976F</p>
+        </div>
+      </div>
+
+      <button type="submit" class="w-full bg-cyan-500 text-black font-bold uppercase tracking-widest py-4 hover:bg-cyan-400 transition-colors heading text-lg">
+        Authorize_Transaction
+      </button>
+    </form>
+
+    <!-- Summary Sidebar -->
+    <div class="border border-gray-800 bg-black p-6 h-fit sticky top-24">
+      <h3 class="heading text-xl text-white mb-4 uppercase tracking-widest border-b border-gray-800 pb-2">Ledger</h3>
+      <div id="checkout-items" class="space-y-4 mb-6 divide-y divide-gray-900"></div>
+      <div class="border-t border-cyan-500/50 pt-4 flex justify-between heading text-xl text-white">
+        <span>TOTAL:</span>
+        <span id="checkout-total" class="text-cyan-400">$0.00</span>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function togglePay(type) {
+      document.getElementById('cc-fields').style.display = type === 'cc' ? 'block' : 'none';
+      document.getElementById('crypto-fields').style.display = type === 'crypto' ? 'block' : 'none';
+    }
+
+    const cart = JSON.parse(localStorage.getItem("geek_cart")) || [];
+    const checkItems = document.getElementById("checkout-items");
+    const checkTotal = document.getElementById("checkout-total");
+
+    if (cart.length === 0) {
+      checkItems.innerHTML = `<p class="text-red-500 text-xs">CART DATA MISSING</p>`;
+    } else {
+      let t = 0;
+      checkItems.innerHTML = cart.map(item => {
+        t += item.price * item.quantity;
+        return `
+          <div class="flex justify-between pt-2">
+            <div>
+              <p class="text-sm text-white">${item.name}</p>
+              <p class="text-xs text-gray-500">QTY: ${item.quantity}</p>
+            </div>
+            <p class="text-cyan-400 text-sm">$${(item.price * item.quantity).toFixed(2)}</p>
+          </div>
+        `;
+      }).join("");
+      checkTotal.textContent = `$${t.toFixed(2)}`;
+    }
+
+    function processOrder(e) {
+      e.preventDefault();
+      if(cart.length === 0) return alert("Cart is empty.");
+      alert("TRANSACTION AUTHORIZED. Redirecting to Hardware Telemetry...");
+      localStorage.removeItem("geek_cart");
+      window.location.href = "lacing-status.html";
+    }
   </script>
 </body>
 </html>

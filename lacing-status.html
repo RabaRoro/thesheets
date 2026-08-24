@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>Telemetry System | GEEK.SYS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Space Mono', monospace; background-color: #000; color: #00ffcc; overflow-x: hidden; }
+    .heading { font-family: 'Orbitron', sans-serif; }
+    
+    /* Cyberpunk Grid & Animations */
+    .bg-grid { background-image: linear-gradient(#0f172a 1px, transparent 1px), linear-gradient(90deg, #0f172a 1px, transparent 1px); background-size: 20px 20px; }
+    .scanline { width: 100%; height: 100px; background: linear-gradient(0deg, rgba(0,255,204,0) 0%, rgba(0,255,204,0.1) 50%, rgba(0,255,204,0) 100%); position: fixed; top: -100px; animation: scan 6s linear infinite; pointer-events: none; z-index: 50; }
+    @keyframes scan { 0% { top: -100px; } 100% { top: 100vh; } }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .blinking { animation: blink 2s infinite; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-grid relative">
+  <div class="scanline"></div>
+
+  <!-- Minimal Terminal Header -->
+  <header class="border-b border-cyan-500/30 bg-black/90 px-6 py-3 flex justify-between items-center text-xs uppercase tracking-widest relative z-10">
+    <div class="flex items-center gap-4">
+      <span class="text-white heading text-lg">GEEK.SYS</span>
+      <span class="text-cyan-500 px-2 py-1 border border-cyan-500/50 bg-cyan-500/10 blinking">LINK_ESTABLISHED</span>
+    </div>
+    <a href="index.html" class="text-gray-500 hover:text-cyan-400 border border-gray-800 px-3 py-1">Disconnect_Session</a>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-8 w-full flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10">
+    
+    <!-- Top Stats -->
+    <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="border border-cyan-500/50 bg-black/60 p-4">
+        <p class="text-[10px] text-gray-500 mb-1">DEVICE_ID</p>
+        <p class="text-white font-bold text-lg">CYBER-LCR-89X</p>
+      </div>
+      <div class="border border-cyan-500/50 bg-black/60 p-4">
+        <p class="text-[10px] text-gray-500 mb-1">SIGNAL_STRENGTH</p>
+        <p class="text-cyan-400 font-bold text-lg">98.4% <span class="text-xs">Uplink</span></p>
+      </div>
+      <div class="border border-cyan-500/50 bg-black/60 p-4">
+        <p class="text-[10px] text-gray-500 mb-1">CORE_TEMP</p>
+        <p class="text-orange-400 font-bold text-lg">34.2°C</p>
+      </div>
+      <div class="border border-cyan-500/50 bg-black/60 p-4 relative overflow-hidden">
+        <p class="text-[10px] text-gray-500 mb-1 z-10 relative">BATTERY_CELL</p>
+        <p class="text-white font-bold text-lg z-10 relative">88%</p>
+        <div class="absolute bottom-0 left-0 h-1 bg-cyan-500 w-[88%] z-10"></div>
+      </div>
+    </div>
+
+    <!-- Main Visual / Controls -->
+    <div class="lg:col-span-2 border border-cyan-500/50 bg-black/60 p-6 flex flex-col justify-between min-h-[400px]">
+      <div>
+        <h2 class="heading text-xl text-white uppercase tracking-widest border-b border-gray-800 pb-2 mb-6">Micro-Motor Tension Config</h2>
+        
+        <div class="space-y-6">
+          <!-- Tension Bar -->
+          <div>
+            <div class="flex justify-between text-xs mb-2">
+              <span class="text-gray-400">Current Tension:</span>
+              <span id="tension-val" class="text-cyan-400 font-bold">60%</span>
+            </div>
+            <div class="w-full bg-gray-900 h-4 border border-gray-700 relative overflow-hidden">
+              <div id="tension-bar" class="h-full bg-cyan-500 w-[60%] transition-all duration-1000 ease-out"></div>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-3 gap-4 pt-4">
+            <button onclick="setMode('RELAXED', '30%')" class="border border-gray-700 bg-gray-900 hover:border-cyan-500 text-xs py-3 text-white uppercase transition-colors">Relaxed (30%)</button>
+            <button onclick="setMode('STANDARD', '60%')" class="border border-cyan-500 bg-cyan-500/20 text-xs py-3 text-cyan-400 uppercase transition-colors shadow-[0_0_10px_rgba(0,255,204,0.3)]">Standard (60%)</button>
+            <button onclick="setMode('COMBAT/SPORT', '95%')" class="border border-red-500/50 text-red-500 hover:bg-red-500/20 text-xs py-3 uppercase transition-colors">Sport (95%)</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-8 pt-4 border-t border-gray-800">
+        <p class="text-xs text-gray-500 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-cyan-500 blinking block"></span> Firmware up to date (v4.0.2)</p>
+      </div>
+    </div>
+
+    <!-- Terminal Log -->
+    <div class="border border-gray-800 bg-black/80 p-4 font-mono text-[10px] sm:text-xs text-cyan-500/70 h-full flex flex-col">
+      <h3 class="text-white uppercase border-b border-gray-800 pb-2 mb-2">Terminal_Log</h3>
+      <div id="terminal-out" class="overflow-y-auto flex-1 space-y-1">
+        <p>INIT> Connecting to local mesh net...</p>
+        <p>SUCCESS> Handshake accepted.</p>
+        <p>SYS> Reading motor telemetry...</p>
+        <p>SYS> Left boot: NOMINAL.</p>
+        <p>SYS> Right boot: NOMINAL.</p>
+        <p class="text-white">> Waiting for user input...</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function setMode(mode, val) {
+      document.getElementById('tension-val').textContent = val;
+      document.getElementById('tension-bar').style.width = val;
+      
+      const term = document.getElementById('terminal-out');
+      term.innerHTML += `<p class="text-cyan-400">> OVERRIDE: Setting tension to ${val} (${mode})</p>`;
+      term.innerHTML += `<p>SYS> Calibrating micro-motors...</p>`;
+      term.scrollTop = term.scrollHeight; // Auto-scroll
+      
+      setTimeout(() => {
+        term.innerHTML += `<p class="text-white">> CALIBRATION COMPLETE.</p>`;
+        term.scrollTop = term.scrollHeight;
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
